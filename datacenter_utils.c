@@ -286,6 +286,17 @@ void spawn_vm_child(VM *vm, const char *vm_dir, const char *exec_path,
 	_exit(1); 
 }
 
+// termina as Vms já lançadas se houver falha no meio do processo
+int rollback(Reservation *res, size_t i){
+	
+	for (size_t k = 0; k < i; k++) {
+		kill(res->vms[k]->pid, SIGKILL);
+		waitpid(res->vms[k]->pid, NULL, 0);
+		res->vms[k]->pid = 0;
+		res->vms[k]->state = VM_STATE_RESERVED;
+	}
+	return 1;
+}
 
 // percorre todas as VMs associadas a uma reserva e cria processo filho utilizando fork
 int spawn_all_vms(DataCenter *dc, Reservation *res) {
@@ -302,12 +313,12 @@ int spawn_all_vms(DataCenter *dc, Reservation *res) {
 		// caminho da diretoria da VM
 		int n = snprintf(vm_dir, sizeof(vm_dir), "/tmp/CloudIST/%s/%s", res->id, vm->id);
 		if (n < 0 || (size_t)n >= sizeof(vm_dir))
-			goto rollback;
+			rollback(res, i); //ANTIGO ROLLBACK
 
 		// resolve o caminho absoluto do executável para evitar falhas após o chdir do fiho
 		if (absolute_path(vm->type->exec_path, exec_path, sizeof(exec_path)) != 0) {
 			fprintf(stderr, "Cannot resolve executable path of VM %s.\n", vm->id);
-			goto rollback;
+			rollback(res, i); //ANTIGO ROLLBACK
 		}
 
 		// cálculo da percentagem de CPU exigida pela VM
@@ -320,7 +331,7 @@ int spawn_all_vms(DataCenter *dc, Reservation *res) {
 
 		if (pid < 0) {
 			perror("fork");
-			goto rollback;
+			rollback(res, i); //ANTIGO ROLLBACK
 		}
 
 		if (pid == 0) {
@@ -331,20 +342,10 @@ int spawn_all_vms(DataCenter *dc, Reservation *res) {
 		vm->pid = pid;
 		vm->state = VM_STATE_RUNNING;
 		continue;
-
-rollback:
-		// termina as Vms já lançadas se houver falha no meio do processo
-		for (size_t k = 0; k < i; k++) {
-			kill(res->vms[k]->pid, SIGKILL);
-			waitpid(res->vms[k]->pid, NULL, 0);
-			res->vms[k]->pid = 0;
-			res->vms[k]->state = VM_STATE_RESERVED;
-		}
-		return 1;
 	}
-
 	return 0;
 }
+
 
 
 /**

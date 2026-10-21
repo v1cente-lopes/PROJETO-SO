@@ -8,6 +8,17 @@
 #include "constants.h"
 #include "filesystem.h"
 
+// Estrutura para controlar a fila partilhada de ficheiros entre as threads
+typedef struct {
+    char conf_files[MAX_CONF_FILES][MAX_STRING_SIZE];
+    size_t num_conf_files;
+    size_t current_index;
+    const char *input_dir;
+    DataCenter *dc;
+    pthread_mutex_t *mutex;
+    pthread_mutex_t queue_mutex;
+} ThreadPoolQueue;
+
 typedef struct VMType{
   char id[MAX_STRING_SIZE];        // Id of VM type. eg: "V1"
   char input_folder[MAX_PATH_SIZE];  // Folder with input for executable

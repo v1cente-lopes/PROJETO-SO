@@ -45,3 +45,5 @@ int absolute_path(const char *path, char *buffer, size_t size);
 int copy_directory_recursively(const char *source, const char *dest);
 
 #endif // FILESYSTEM_H
+
+void *process_conf_file(void *arg);
