@@ -288,7 +288,7 @@ void spawn_vm_child(VM *vm, const char *vm_dir, const char *exec_path,
 
 // termina as Vms já lançadas se houver falha no meio do processo
 int rollback(Reservation *res, size_t i){
-	
+	//Ciclo para terminar as VMs já lançadas
 	for (size_t k = 0; k < i; k++) {
 		kill(res->vms[k]->pid, SIGKILL);
 		waitpid(res->vms[k]->pid, NULL, 0);
