@@ -215,6 +215,7 @@ int copy_directory_recursively(const char *source, const char *dest){
   return 0;
 }
 
+
 // Função executada por cada worker thread para processar os ficheiros da fila
 void *process_conf_file(void *arg) {
     ThreadPoolQueue *queue = (ThreadPoolQueue *)arg;
@@ -225,7 +226,8 @@ void *process_conf_file(void *arg) {
         pthread_mutex_lock(&queue->queue_mutex);
         if (queue->current_index >= queue->num_conf_files) {
             pthread_mutex_unlock(&queue->queue_mutex);
-            break; // Fila vazia, a thread termina
+            // Fila vazia, a thread termina
+            break; 
         }
         strcpy(current_file, queue->conf_files[queue->current_index]);
         queue->current_index++;

@@ -14,10 +14,6 @@
 pthread_mutex_t dc_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
-//A METER:
-//thread q espera por processos, lock em todos os servidores
-
-
 int main(int argc, char **argv) {
     if (argc != 8) {
         fprintf(stderr, "Usage: %s <servers> <ram> <disk> <cpus> <host_cores> <input_dir> <max_threads>\n", argv[0]);
@@ -34,7 +30,7 @@ int main(int argc, char **argv) {
     static char conf_files[MAX_CONF_FILES][MAX_STRING_SIZE];
     size_t num_conf_files;
 
-    // Obtém a lista de ficheiros .conf ordenados alfabéticamente
+    // Obtém a lista de ficheiros .conf ordenados alfabeticamente
     if (list_conf_files(input_dir, conf_files, &num_conf_files) != 0) {
         fprintf(stderr, "Failed to list .conf files.\n");
         return 1;

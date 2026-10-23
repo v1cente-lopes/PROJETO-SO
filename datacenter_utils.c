@@ -11,6 +11,8 @@
 #include "filesystem.h"
 
 
+//Função procura um tipo de VM pelo seu id na lista de tipos definidos no datacenter. 
+//Se encontrar, retorna um ponteiro para o tipo de VM, caso contrário retorna NULL.
 VMType *VMType_exists(DataCenter *dc, const char* type_id){
 	for(size_t i = 0; i < dc->num_vm_types; i++){
 		if(strncmp(type_id, dc->vm_types[i].id, MAX_STRING_SIZE) == 0){
@@ -248,6 +250,8 @@ static void reservation_remove(DataCenter *dc, Reservation *reservation) {
 }
 
 
+//Destrói uma reserva percorrendo todas pelos seus números (num_vms) e 
+//chamando a função vm_release para cada VM, libertando os recursos alocados.
 void reservation_destroy(DataCenter *dc, Reservation *reservation) {
 	while (reservation->num_vms > 0)
 		vm_release(reservation, reservation->num_vms - 1);
@@ -286,6 +290,7 @@ void spawn_vm_child(VM *vm, const char *vm_dir, const char *exec_path,
 	_exit(1); 
 }
 
+
 // termina as Vms já lançadas se houver falha no meio do processo
 int rollback(Reservation *res, size_t i){
 	//Ciclo para terminar as VMs já lançadas
@@ -297,6 +302,7 @@ int rollback(Reservation *res, size_t i){
 	}
 	return 1;
 }
+
 
 // percorre todas as VMs associadas a uma reserva e cria processo filho utilizando fork
 int spawn_all_vms(DataCenter *dc, Reservation *res) {
@@ -347,7 +353,6 @@ int spawn_all_vms(DataCenter *dc, Reservation *res) {
 }
 
 
-
 /**
  * Finds the VM with the given pid and its reservation.
  */
@@ -395,7 +400,7 @@ void reap_finished_vms(DataCenter *dc) {
 
 		if (pid < 0 && errno == EINTR)
 			continue;
-		if (pid <= 0) // nothing else finished (or no children)
+		if (pid <= 0) 
 			break;
 
 		handle_finished_vm(dc, pid);

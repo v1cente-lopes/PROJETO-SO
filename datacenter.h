@@ -1,12 +1,11 @@
 #ifndef DATACENTER__H
 #define DATACENTER__H
-
 #include <stdio.h>
 #include <sys/types.h>
-
 #include "resources.h"
 #include "constants.h"
 #include "filesystem.h"
+
 
 // Estrutura para controlar a fila partilhada de ficheiros entre as threads
 typedef struct {
@@ -19,6 +18,7 @@ typedef struct {
     pthread_mutex_t queue_mutex;
 } ThreadPoolQueue;
 
+
 typedef struct VMType{
   char id[MAX_STRING_SIZE];        // Id of VM type. eg: "V1"
   char input_folder[MAX_PATH_SIZE];  // Folder with input for executable
@@ -26,13 +26,16 @@ typedef struct VMType{
   Resources required;
 } VMType;
 
+
 typedef enum {
   VM_STATE_RESERVED,   // placed on a Server, process not started yet (waiting for 'A' command)
   VM_STATE_RUNNING,    // process launched (fork()/exec() called), `pid` is valid
   VM_STATE_TERMINATED  // wait() called, process finished
 } VMState;
 
+
 typedef struct Server Server;
+
 
 typedef struct VM {
   char id[MAX_VM_ID_STRING]; // VM id. eg: "R1_V1_1"
@@ -41,6 +44,7 @@ typedef struct VM {
   pid_t pid;      // PID of executable file.
   VMState state;  // State of the VM.
 } VM;
+
 
 typedef struct Server {
 	size_t id;		     // Server ID (1, 2, 3, ...)
@@ -51,11 +55,13 @@ typedef struct Server {
     size_t num_hosted_vms;
 } Server;
 
+
 typedef enum {
     RES_STATE_PENDING,   // Reserved via 'R', waiting for 'A'
     RES_STATE_RUNNING,   // 'A' was called
     RES_STATE_FINISHED   // All VMs in this reservation have terminated
 } ReservationState;
+
 
 typedef struct ReservationPair {
     char vm_type_id[MAX_STRING_SIZE]; // VM type. e.g: "V1"       
@@ -64,6 +70,7 @@ typedef struct ReservationPair {
 
     VMType *vm_type;                   // Used for search optimization.
 } ReservationItem;
+
 
 typedef struct Reservation {
 	char id[MAX_STRING_SIZE];                       // id of reservation.
@@ -75,6 +82,7 @@ typedef struct Reservation {
 	size_t num_vms;                                 // Number of VMs in this reservation.
 	ReservationState state;                         // State of the reservation.
 } Reservation;
+
 
 typedef struct DataCenter {
 	Server *servers;			     // List of Servers.
@@ -89,6 +97,7 @@ typedef struct DataCenter {
 	int configured;		      // Wheter the datacenter is configured or not.
 } DataCenter;
 
+
 /**
  * Initializes a Data Center.
  *
@@ -96,12 +105,14 @@ typedef struct DataCenter {
  */
 void datacenter_init(DataCenter *dc);
 
+
 /**
  * Destroys a Data Center.
  *
  * @param dc DatacCenter being destroyed.
  */
 void datacenter_destroy(DataCenter *dc);
+
 
 /**
  * Configures a given Data Center.
@@ -114,6 +125,7 @@ void datacenter_destroy(DataCenter *dc);
  */
 int datacenter_configure(DataCenter *dc, size_t num_pcs, Resources *resources);
 
+
 /**
  * Defines a VM for the Data Center
  *
@@ -124,6 +136,7 @@ int datacenter_configure(DataCenter *dc, size_t num_pcs, Resources *resources);
  * @return 1 on error.
  */
 int datacenter_define_VM(DataCenter *dc, struct VMType *type);
+
 
 /**
  * Reserves a set of VMs for a given reservation.
@@ -136,6 +149,7 @@ int datacenter_define_VM(DataCenter *dc, struct VMType *type);
  */
 int datacenter_reserve(DataCenter *dc, Reservation *reservation);
 
+
 /**
  * Lists the current state of the Data Center.
  *
@@ -145,6 +159,7 @@ int datacenter_reserve(DataCenter *dc, Reservation *reservation);
  * @return 1 on error.
  */
 int datacenter_list(DataCenter *dc);
+
 
 /**
  * Executes a reservation, launching the VMs.
@@ -157,6 +172,7 @@ int datacenter_list(DataCenter *dc);
  */
 int datacenter_execute(DataCenter *dc, const char *reservation_id);
 
+
 /**
  * Executes a delay command. VMs that finish meanwhile are destroyed
  * immediately.
@@ -164,5 +180,6 @@ int datacenter_execute(DataCenter *dc, const char *reservation_id);
  * @param delay_ms Delay in ms.
  */
 void datacenter_wait(unsigned int delay_ms);
+
 
 #endif // DATACENTER__H
