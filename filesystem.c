@@ -223,17 +223,18 @@ void *process_conf_file(void *arg) {
 
     while (1) {
         // Secção crítica para retirar o próximo ficheiro da fila de forma segura
+        // para duas threads não apanharem o mesmo ficheiro
         pthread_mutex_lock(&queue->queue_mutex);
         if (queue->current_index >= queue->num_conf_files) {
             pthread_mutex_unlock(&queue->queue_mutex);
-            // Fila vazia, a thread termina
+            // Fila vazia, a thread termina, não tem mais ficheiros
             break; 
         }
         strcpy(current_file, queue->conf_files[queue->current_index]);
         queue->current_index++;
         pthread_mutex_unlock(&queue->queue_mutex);
 
-        // Construir o caminho completo para abrir o ficheiro .conf
+        // abre o ficheiro, sem mutex, cada thread tem o seu file descriptor
         char full_path[MAX_PATH_SIZE];
         snprintf(full_path, MAX_PATH_SIZE, "%s/%s", queue->input_dir, current_file);
 
@@ -243,6 +244,9 @@ void *process_conf_file(void *arg) {
             continue;
         }
 
+
+        // executa os comandos do ficheiro um a um, o mutex só é usado quando
+        // se mexe no data center
         int done = 0;
         while (!done) {
             switch (get_next_command(fd)) {
