@@ -317,7 +317,7 @@ int spawn_all_vms(DataCenter *dc, Reservation *res) {
 		char cpulimit_str[32];
 
 		// caminho da diretoria da VM
-		int n = snprintf(vm_dir, sizeof(vm_dir), "/tmp/CloudIST/%s/%s", res->id, vm->id);
+		int n = snprintf(vm_dir, sizeof(vm_dir), "/tmp/CloudIST-/%s/%s", res->id, vm->id);
 		if (n < 0 || (size_t)n >= sizeof(vm_dir))
 			rollback(res, i); //ANTIGO ROLLBACK
 
