@@ -227,7 +227,7 @@ void *process_conf_file(void *arg) {
         pthread_mutex_lock(&queue->queue_mutex);
         if (queue->current_index >= queue->num_conf_files) {
             pthread_mutex_unlock(&queue->queue_mutex);
-            // Fila vazia, a thread termina, não tem mais ficheirosss
+            // Fila vazia, a thread termina, não tem mais ficheirosssssss
             break; 
         }
         strcpy(current_file, queue->conf_files[queue->current_index]);
